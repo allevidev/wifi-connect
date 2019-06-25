@@ -14,6 +14,8 @@ use config::Config;
 use dnsmasq::start_dnsmasq;
 use server::start_server;
 
+use utils::publish_event_command;
+
 pub enum NetworkCommand {
     Activate,
     Timeout,
@@ -224,6 +226,7 @@ impl NetworkCommandHandler {
         if let Some(access_point) = find_access_point(&self.access_points, ssid) {
             let wifi_device = self.device.as_wifi_device().unwrap();
 
+            publish_event_command("BLUE".to_string());
             info!("Connecting to access point '{}'...", ssid);
 
             let credentials = init_access_point_credentials(access_point, identity, passphrase);
@@ -234,11 +237,14 @@ impl NetworkCommandHandler {
                         match wait_for_connectivity(&self.manager, 20) {
                             Ok(has_connectivity) => {
                                 if has_connectivity {
+                                    publish_event_command("GREEN".to_string());
                                     info!("Internet connectivity established");
                                 } else {
+                                    publish_event_command("ORANGE".to_string());
                                     warn!("Cannot establish Internet connectivity");
                                 }
                             },
+                            publish_event_command("ORANGE".to_string());
                             Err(err) => error!("Getting Internet connectivity failed: {}", err),
                         }
 
@@ -249,12 +255,14 @@ impl NetworkCommandHandler {
                         error!("Deleting connection object failed: {}", err)
                     }
 
+                    publish_event_command("ORANGE".to_string());
                     warn!(
-                        "Connection to access point not activated '{}': {:?}",
+                        "Connnection to access point not activated '{}': {:?}",
                         ssid, state
                     );
                 },
                 Err(e) => {
+                    publish_event_command("ORANGE".to_string());
                     warn!("Error connecting to access point '{}': {}", ssid, e);
                 },
             }
@@ -432,6 +440,7 @@ fn create_portal_impl(
     gateway: &Ipv4Addr,
     passphrase: &Option<&str>,
 ) -> Result<Connection> {
+    publish_event_command("RED".to_string());
     info!("Starting access point...");
     let wifi_device = device.as_wifi_device().unwrap();
     let (portal_connection, _) = wifi_device.create_hotspot(ssid, *passphrase, Some(*gateway))?;

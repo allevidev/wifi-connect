@@ -12,6 +12,8 @@ extern crate serde_derive;
 #[macro_use]
 extern crate clap;
 
+extern crate simple_redis;
+
 extern crate env_logger;
 extern crate iron;
 extern crate iron_cors;
@@ -32,6 +34,8 @@ mod dnsmasq;
 mod logger;
 mod exit;
 mod privileges;
+
+mod utils;
 
 use std::path;
 use std::thread;

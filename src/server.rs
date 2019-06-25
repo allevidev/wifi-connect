@@ -20,6 +20,7 @@ use errors::*;
 use network::{NetworkCommand, NetworkCommandResponse};
 use exit::{exit, ExitResult};
 
+
 struct RequestSharedState {
     gateway: Ipv4Addr,
     server_rx: Receiver<NetworkCommandResponse>,
