@@ -20,6 +20,11 @@ use errors::*;
 use network::{NetworkCommand, NetworkCommandResponse};
 use exit::{exit, ExitResult};
 
+//use mac_address::mac_address_by_name;
+use std::fs;
+use std::io::Read;
+use std::path::Path;
+
 struct RequestSharedState {
     gateway: Ipv4Addr,
     server_rx: Receiver<NetworkCommandResponse>,
@@ -145,6 +150,8 @@ pub fn start_server(
     router.get("/networks", networks, "networks");
     router.post("/connect", connect, "connect");
 
+    router.post("/get_mac_address", get_mac_address, "get_mac_address");
+
     let mut assets = Mount::new();
     assets.mount("/", router);
     assets.mount("/css", Static::new(&ui_directory.join("css")));
@@ -218,4 +225,29 @@ fn connect(req: &mut Request) -> IronResult<Response> {
     } else {
         Ok(Response::with(status::Ok))
     }
+}
+
+fn get_mac_address(req: &mut Request) -> IronResult<Response> {
+    // List avil interfaces
+    // let net = Path::new("/sys/class/net");
+    // let entry = fs::read_dir(net).expect("Error");
+    // let ifaces = entry.filter_map(|p| p.ok())
+    //                   .map(|p| p.path().file_name().expect("Error").to_os_string())
+    //                   .filter_map(|s| s.into_string().ok())
+    //                   .collect::<Vec<String>>();
+    // println!("Available interfaces: {:?}", ifaces);
+
+    let interface = {
+        let params = get_request_ref!(req, Params, "Getting request params failed");
+        let interface = get_param!(params, "interface", String);
+        (interface)
+    };
+    
+    let iface = net.join(interface).join("address");
+    let mut f = fs::File::open(iface).expect("Failed");
+    let mut macaddr = String::new();
+    f.read_to_string(&mut macaddr).expect("Error");
+    println!("MAC address: {}", macaddr);
+
+    Ok(Response::with((status::Ok, macaddr.as_str())))
 }
