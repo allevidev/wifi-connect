@@ -24,6 +24,8 @@ extern crate router;
 extern crate serde_json;
 extern crate staticfile;
 
+extern crate mac_address;
+
 mod errors;
 mod config;
 mod network;
