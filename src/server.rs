@@ -228,7 +228,7 @@ fn connect(req: &mut Request) -> IronResult<Response> {
 }
 
 fn get_mac_address(req: &mut Request) -> IronResult<Response> {
-    // List avil interfaces
+    // List avail interfaces
     // let net = Path::new("/sys/class/net");
     // let entry = fs::read_dir(net).expect("Error");
     // let ifaces = entry.filter_map(|p| p.ok())
